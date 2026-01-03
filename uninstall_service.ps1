@@ -1,19 +1,22 @@
-# Uninstall Telegram Bot Windows Service
+# Uninstall Telegram Bot Auto-Start
 
 $serviceName = "TelegramDiscountBot"
 
-Write-Host "Uninstalling Telegram Discount Bot service..." -ForegroundColor Yellow
+Write-Host "=" * 80 -ForegroundColor Cyan
+Write-Host "Uninstalling Telegram Discount Bot Auto-Start" -ForegroundColor Yellow
+Write-Host "=" * 80 -ForegroundColor Cyan
+Write-Host ""
 
 try {
-    Unregister-ScheduledTask -TaskName $serviceName -Confirm:$false
-    Write-Host "✅ Service uninstalled successfully!" -ForegroundColor Green
+    # Stop if running
+    Stop-ScheduledTask -TaskName $serviceName -ErrorAction SilentlyContinue
+    
+    # Unregister task
+    Unregister-ScheduledTask -TaskName $serviceName -Confirm:$false -ErrorAction Stop
+    Write-Host "✅ Auto-start removed successfully!" -ForegroundColor Green
+    Write-Host "The bot will no longer start automatically." -ForegroundColor Yellow
 } catch {
     Write-Host "❌ Service not found or already uninstalled" -ForegroundColor Red
 }
 
-# Clean up VBS file
-$vbsPath = "$PSScriptRoot\run_bot.vbs"
-if (Test-Path $vbsPath) {
-    Remove-Item $vbsPath -Force
-    Write-Host "✅ Cleaned up temporary files" -ForegroundColor Green
-}
+Write-Host ""

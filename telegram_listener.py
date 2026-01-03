@@ -555,16 +555,23 @@ class DiscountChannelListener:
     async def catch_up_messages(self):
         """
         Process messages that came while bot was offline.
+        Only runs if bot was actually shut down.
         """
         if not self.history_manager:
             return
         
+        # Check if we should catch up
+        if not self.history_manager.should_catch_up():
+            self._log("ℹ️  Bot just restarted, skipping catch-up (no shutdown detected)")
+            return
+        
         self._log("\n" + "=" * 80)
-        self._log("📥 CATCHING UP ON MISSED MESSAGES")
+        self._log("📥 CATCHING UP ON MISSED MESSAGES (System was turned off)")
         self._log("=" * 80)
         
-        catchup_hours = self.history_manager.get_catchup_period_hours()
-        self._log(f"⏰ Looking back {catchup_hours} hours...")
+        last_shutdown = self.history_manager.get_last_shutdown_time()
+        self._log(f"⏰ System was last on: {last_shutdown.strftime('%Y-%m-%d %H:%M:%S')}")
+        self._log(f"⏰ Catching up from that time...")
         
         total_caught_up = 0
         
@@ -584,13 +591,19 @@ class DiscountChannelListener:
                     offset_date=last_time,
                     reverse=True  # Process oldest first
                 ):
-                    if message.date <= last_time:
+                    # Ensure timezone-aware comparison
+                    msg_date = message.date
+                    if msg_date.tzinfo is None:
+                        from datetime import timezone
+                        msg_date = msg_date.replace(tzinfo=timezone.utc)
+                    
+                    if msg_date <= last_time:
                         continue
                     
                     # Process this message
                     await self.process_message(message)
                     messages_count += 1
-                    latest_date = max(latest_date, message.date)
+                    latest_date = max(latest_date, msg_date)
                     
                     # Limit to prevent overwhelming (optional)
                     if messages_count >= 100:
@@ -626,7 +639,7 @@ class DiscountChannelListener:
             self._log("🚀 Starting listener...")
             await self.start()
             
-            # Catch up on missed messages (if enabled)
+            # Catch up on missed messages (only if system was turned off)
             if self.catchup_mode and self.history_manager:
                 await self.catch_up_messages()
             
@@ -640,6 +653,11 @@ class DiscountChannelListener:
             self._log(f"❌ Fatal error: {e}", "ERROR")
             raise
         finally:
+            # Mark shutdown time before disconnecting
+            if self.history_manager:
+                self.history_manager.mark_shutdown()
+                self._log("💾 Saved shutdown time for next catch-up")
+            
             self.print_statistics()
             await self.client.disconnect()
             self._log("👋 Disconnected from Telegram")
