@@ -94,11 +94,11 @@ def save_to_database(data: Dict) -> bool:
         return False
     
     try:
-        # ONLY use official website data (verified_*) - never use Telegram parsed data
-        product_name = data.get('verified_title')
-        original_mrp = data.get('verified_mrp')
-        discounted_price = data.get('verified_price')
-        discount_percent = data.get('verified_discount')
+        # Use official website data (verified_*) with fallback to NLP-parsed data
+        product_name = data.get('verified_title') or data.get('title')  # Fallback to NLP title
+        original_mrp = data.get('verified_mrp') or data.get('mrp')
+        discounted_price = data.get('verified_price') or data.get('discount_price')
+        discount_percent = data.get('verified_discount') or data.get('discount_percent')
         product_link = data.get('link', '')
         rating = data.get('rating')
         product_image_url = data.get('product_image_url')
@@ -145,7 +145,7 @@ def save_to_database(data: Dict) -> bool:
         
         # Strict validation - all data must come from official website
         if not product_name:
-            print("❌ No product name extracted from official website")
+            print("❌ No product name (neither verified nor parsed)")
             return False
             
         if not product_link:
@@ -153,7 +153,7 @@ def save_to_database(data: Dict) -> bool:
             return False
         
         if not discounted_price:
-            print("❌ No price extracted from official website")
+            print("❌ No price (neither verified nor parsed)")
             return False
         
         # Validate price range (₹10 - ₹500,000)

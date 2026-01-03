@@ -10,21 +10,21 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/health' or self.path == '/':
             self.send_response(200)
-            self.send_header('Content-type', 'text/html')
+            self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
-            response = b'''
+            response = '''
             <!DOCTYPE html>
             <html>
             <head><title>Telegram Discount Bot</title></head>
             <body>
-                <h1>🤖 Telegram Discount Bot is Running!</h1>
-                <p>✅ Status: Active</p>
-                <p>📊 Monitoring 37 Telegram channels for deals</p>
-                <p>🔗 <a href="/health">Health Check</a></p>
+                <h1>Telegram Discount Bot is Running!</h1>
+                <p>Status: Active</p>
+                <p>Monitoring 37 Telegram channels for deals</p>
+                <p><a href="/health">Health Check</a></p>
             </body>
             </html>
             '''
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
         else:
             self.send_response(404)
             self.end_headers()
