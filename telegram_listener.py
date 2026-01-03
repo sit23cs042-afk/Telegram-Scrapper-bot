@@ -628,8 +628,9 @@ class DiscountChannelListener:
         """
         Process a single message (used by both catch-up and real-time).
         """
-        # Use existing message handler logic
-        await self.on_new_message(events.NewMessage.Event(message))
+        # Create event wrapper and use existing message handler logic
+        event = events.NewMessage.Event(message)
+        await self.handle_new_message(event)
     
     async def run(self):
         """
