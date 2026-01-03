@@ -113,18 +113,35 @@ class BaseProductScraper(ABC):
                 return None
         return None
     
-    def _clean_price(self, price_str: str) -> Optional[float]:
+    def _clean_price(self, price_str: str, check_per_unit: bool = True) -> Optional[float]:
         """
         Extract numeric price from string.
         
         Args:
             price_str: Price string with currency symbols
+            check_per_unit: If True, reject per-unit prices (₹5/g, ₹10/kg, etc.)
             
         Returns:
             Float price or None
         """
         if not price_str:
             return None
+        
+        # Check for per-unit pricing patterns (reject these)
+        if check_per_unit:
+            per_unit_patterns = [
+                r'/\s*g\b',      # per gram
+                r'/\s*kg\b',     # per kilogram
+                r'/\s*ml\b',     # per milliliter
+                r'/\s*l\b',      # per liter
+                r'/\s*unit\b',   # per unit
+                r'/\s*piece\b',  # per piece
+                r'/\s*item\b',   # per item
+                r'\(\s*₹[\d,]+\s*/\s*[gkml]',  # (₹5/g) format
+            ]
+            for pattern in per_unit_patterns:
+                if re.search(pattern, price_str, re.IGNORECASE):
+                    return None  # Reject per-unit prices
         
         # Remove currency symbols and commas
         price_str = re.sub(r'[₹$,\s]', '', price_str)
@@ -578,6 +595,10 @@ class AmazonScraper(BaseProductScraper):
         if not mrp:
             # Search all text containing M.R.P or MRP
             for elem in soup.find_all(string=re.compile(r'M\.?R\.?P\.?:?\s*₹', re.IGNORECASE)):
+                # Skip if it contains per-unit indicators
+                elem_text = str(elem)
+                if any(x in elem_text.lower() for x in ['/g', '/kg', '/ml', '/l', 'per gram', 'per kg']):
+                    continue
                 mrp_match = re.search(r'₹\s*([\d,]+\.?\d*)', elem)
                 if mrp_match:
                     mrp = self._clean_price(mrp_match.group(0))
@@ -587,6 +608,9 @@ class AmazonScraper(BaseProductScraper):
         if not mrp:
             for elem in soup.find_all('span', {'class': re.compile(r'.*basisPrice.*', re.IGNORECASE)}):
                 price_text = elem.get_text()
+                # Skip per-unit pricing
+                if any(x in price_text.lower() for x in ['/g', '/kg', '/ml', '/l', 'per gram', 'per kg']):
+                    continue
                 if '₹' in price_text:
                     mrp = self._clean_price(price_text)
                     break
@@ -949,7 +973,11 @@ class FlipkartScraper(BaseProductScraper):
         for tag, attrs in mrp_selectors:
             mrp_elem = soup.find(tag, attrs=attrs)
             if mrp_elem:
-                mrp = self._clean_price(mrp_elem.get_text())
+                elem_text = mrp_elem.get_text()
+                # Skip per-unit pricing
+                if any(x in elem_text.lower() for x in ['/g', '/kg', '/ml', '/l', 'per gram', 'per kg']):
+                    continue
+                mrp = self._clean_price(elem_text)
                 if mrp:
                     break
         
@@ -958,6 +986,9 @@ class FlipkartScraper(BaseProductScraper):
             strikethrough_elems = soup.find_all(['del', 's', 'strike'])
             for elem in strikethrough_elems:
                 text = elem.get_text()
+                # Skip per-unit pricing
+                if any(x in text.lower() for x in ['/g', '/kg', '/ml', '/l', 'per gram', 'per kg']):
+                    continue
                 if '₹' in text:
                     mrp = self._clean_price(text)
                     if mrp:
@@ -968,6 +999,9 @@ class FlipkartScraper(BaseProductScraper):
             all_divs = soup.find_all(['div', 'span'], style=re.compile(r'text-decoration:\s*line-through', re.I))
             for div in all_divs:
                 text = div.get_text()
+                # Skip per-unit pricing
+                if any(x in text.lower() for x in ['/g', '/kg', '/ml', '/l', 'per gram', 'per kg']):
+                    continue
                 if '₹' in text:
                     mrp = self._clean_price(text)
                     if mrp:

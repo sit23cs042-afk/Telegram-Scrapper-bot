@@ -429,10 +429,11 @@ def get_all_categories() -> List[Dict]:
 
 def cleanup_expired_deals() -> int:
     """
-    Remove all deals where offer_end_date has passed.
+    Remove expired deals from 'active_deals' table only.
+    The 'deals' table keeps all deals as historical record.
     
     Returns:
-        int: Number of deals deleted
+        int: Number of deals deleted from active_deals
     """
     global supabase
     
@@ -444,8 +445,8 @@ def cleanup_expired_deals() -> int:
         # Get current timestamp
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        # First, get count of expired deals
-        expired_deals = supabase.table(TABLE_NAME)\
+        # First, get count of expired deals in active_deals
+        expired_deals = supabase.table('active_deals')\
             .select("id", count='exact')\
             .not_.is_('offer_end_date', 'null')\
             .lt('offer_end_date', now)\
@@ -457,14 +458,15 @@ def cleanup_expired_deals() -> int:
             print("✅ No expired deals to cleanup")
             return 0
         
-        # Delete expired deals
-        supabase.table(TABLE_NAME)\
+        # Delete expired deals from active_deals table only
+        supabase.table('active_deals')\
             .delete()\
             .not_.is_('offer_end_date', 'null')\
             .lt('offer_end_date', now)\
             .execute()
         
-        print(f"✅ Cleaned up {count} expired deals")
+        print(f"✅ Cleaned up {count} expired deals from active_deals table")
+        print(f"📚 Historical records remain in 'deals' table")
         return count
         
     except Exception as e:
