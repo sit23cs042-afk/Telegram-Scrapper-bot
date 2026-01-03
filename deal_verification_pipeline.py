@@ -226,26 +226,13 @@ class DealVerificationPipeline:
             else:
                 print(f"      Discount: No discount found")
             
-            # Download and store images in Supabase Storage
-            stored_images = {'main_image': None, 'additional_images': []}
-            if scraped_data.get('product_image_url'):
-                print("\n📥 Downloading and storing product images...")
-                try:
-                    from image_storage import store_product_images
-                    image_urls = {
-                        'main_image': scraped_data.get('product_image_url'),
-                        'additional_images': scraped_data.get('additional_images', [])
-                    }
-                    stored_images = store_product_images(image_urls, scraped_data.get('title'))
-                except Exception as e:
-                    print(f"⚠️  Failed to store images: {e}")
-                    # Fallback to original URLs
-                    stored_images = {
-                        'main_image': scraped_data.get('product_image_url'),
-                        'additional_images': scraped_data.get('additional_images', [])
-                    }
+            # Use original image URLs directly (don't download/store)
+            stored_images = {
+                'main_image': scraped_data.get('product_image_url'),
+                'additional_images': scraped_data.get('additional_images', [])
+            }
             
-            # Store official data (with stored image URLs)
+            # Store official data (with original image URLs)
             result.update({
                 'is_verified': True,
                 'verified_title': scraped_data.get('title'),
