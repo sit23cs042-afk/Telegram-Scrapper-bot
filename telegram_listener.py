@@ -354,7 +354,7 @@ class DiscountChannelListener:
                         
                         # Only save if verification passed
                         if self.verification_pipeline.should_save_to_database(verified_data, VERIFICATION_MIN_CONFIDENCE):
-                            # Merge verified data with original parsed data
+                            # Merge verified data with original parsed data (including images)
                             parsed_data.update({
                                 'is_verified': verified_data.get('is_verified', False),
                                 'verified_title': verified_data.get('verified_title'),
@@ -365,7 +365,9 @@ class DiscountChannelListener:
                                 'verification_source': verified_data.get('verification_source'),
                                 'availability': verified_data.get('availability'),
                                 'rating': verified_data.get('rating'),
-                                'seller': verified_data.get('seller')
+                                'seller': verified_data.get('seller'),
+                                'product_image_url': verified_data.get('product_image_url'),
+                                'additional_images': verified_data.get('additional_images', [])
                             })
                             
                             # Re-categorize using verified title (more accurate)
