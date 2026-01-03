@@ -559,6 +559,14 @@ async def main():
     """
     Main entry point for the Telegram listener.
     """
+    # Start health check server for Render
+    try:
+        from health_server import start_health_server
+        port = int(os.getenv('PORT', 10000))
+        start_health_server(port)
+    except Exception as e:
+        print(f"⚠️  Warning: Could not start health server: {e}")
+    
     print("\n" + "=" * 80)
     print("🤖 E-COMMERCE DISCOUNT AI AGENT - TELEGRAM LISTENER")
     print("=" * 80 + "\n")
