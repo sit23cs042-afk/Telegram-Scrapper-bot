@@ -11,6 +11,8 @@ services:
         sync: false
       - key: TELEGRAM_API_HASH
         sync: false
+      - key: TELEGRAM_PHONE
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY

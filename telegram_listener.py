@@ -62,6 +62,7 @@ except ImportError:
 # Telegram API credentials (Get from https://my.telegram.org)
 API_ID = os.getenv('TELEGRAM_API_ID', '31073628')  # Your API_ID
 API_HASH = os.getenv('TELEGRAM_API_HASH', 'aa3d15671e6d93bf06ae350a77aa96bf')  # Your API_HASH
+PHONE_NUMBER = os.getenv('TELEGRAM_PHONE')  # Phone number for authentication
 
 # Session file name (stores authentication)
 SESSION_NAME = 'discount_bot_session'
@@ -227,7 +228,12 @@ class DiscountChannelListener:
         self._log("🔌 Connecting to Telegram...")
         
         try:
-            await self.client.start()
+            # Start with phone number if provided, otherwise interactive
+            if PHONE_NUMBER:
+                self._log(f"📱 Authenticating with phone: {PHONE_NUMBER}")
+                await self.client.start(phone=PHONE_NUMBER)
+            else:
+                await self.client.start()
             
             # Get authenticated user info
             me = await self.client.get_me()
