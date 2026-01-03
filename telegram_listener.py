@@ -4,6 +4,8 @@ Telegram Listener Module
 Listens to e-commerce discount channels on Telegram using Telethon (MTProto),
 extracts structured data using NLP, and saves to database.
 
+Supports both real-time listening and catch-up mode for missed messages.
+
 Author: AI Assistant
 Date: December 2025
 """
@@ -11,7 +13,7 @@ Date: December 2025
 import asyncio
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from telethon import TelegramClient, events
@@ -20,6 +22,14 @@ from telethon.tl.types import User
 
 # Import NLP parser
 from nlp_discount_parser import parse_discount_message
+
+# Import message history manager
+try:
+    from message_history import MessageHistoryManager
+    HISTORY_MANAGER_ENABLED = True
+except ImportError:
+    print("⚠️  Warning: message_history.py not found. Catch-up mode disabled.")
+    HISTORY_MANAGER_ENABLED = False
 
 # Import database functions (Supabase)
 try:
@@ -135,9 +145,10 @@ USE_LLM_CATEGORIZATION = os.getenv('USE_LLM_CATEGORIZATION', 'false').lower() ==
 class DiscountChannelListener:
     """
     Main class for listening to Telegram discount channels.
+    Supports real-time listening and catch-up for missed messages.
     """
     
-    def __init__(self, api_id: str, api_hash: str, session_name: str, channels: list):
+    def __init__(self, api_id: str, api_hash: str, session_name: str, channels: list, catchup_mode=True):
         """
         Initialize the Telegram listener.
         
@@ -146,11 +157,19 @@ class DiscountChannelListener:
             api_hash (str): Telegram API hash
             session_name (str): Session file name
             channels (list): List of channel usernames/IDs to monitor
+            catchup_mode (bool): If True, processes missed messages on startup
         """
         self.api_id = api_id
         self.api_hash = api_hash
         self.session_name = session_name
         self.target_channels = channels
+        self.catchup_mode = catchup_mode
+        
+        # Initialize history manager for catch-up
+        if HISTORY_MANAGER_ENABLED and catchup_mode:
+            self.history_manager = MessageHistoryManager()
+        else:
+            self.history_manager = None
         
         # Proxy configuration (optional)
         proxy = None
@@ -388,6 +407,11 @@ class DiscountChannelListener:
                     if success:
                         self.messages_saved += 1
                         self._log(f"💾 Saved to database (Total saved: {self.messages_saved})")
+                        
+                        # Update last processed time in history (for catch-up)
+                        if self.history_manager and hasattr(event, 'message') and event.message:
+                            channel_name = chat.username or str(chat.id)
+                            self.history_manager.update_last_processed(channel_name, event.message.date)
                     else:
                         self._log("⚠️  Failed to save to database", "WARNING")
                 else:
@@ -528,6 +552,72 @@ class DiscountChannelListener:
         self._log(f"  Errors Encountered : {self.errors_encountered}")
         self._log("=" * 80)
     
+    async def catch_up_messages(self):
+        """
+        Process messages that came while bot was offline.
+        """
+        if not self.history_manager:
+            return
+        
+        self._log("\n" + "=" * 80)
+        self._log("📥 CATCHING UP ON MISSED MESSAGES")
+        self._log("=" * 80)
+        
+        catchup_hours = self.history_manager.get_catchup_period_hours()
+        self._log(f"⏰ Looking back {catchup_hours} hours...")
+        
+        total_caught_up = 0
+        
+        for channel in self.target_channels:
+            try:
+                # Get last processed time for this channel
+                last_time = self.history_manager.get_last_processed_time(channel)
+                self._log(f"\n📡 Channel: {channel}")
+                self._log(f"   Last processed: {last_time.strftime('%Y-%m-%d %H:%M:%S')}")
+                
+                # Fetch messages since last time
+                messages_count = 0
+                latest_date = last_time
+                
+                async for message in self.client.iter_messages(
+                    channel,
+                    offset_date=last_time,
+                    reverse=True  # Process oldest first
+                ):
+                    if message.date <= last_time:
+                        continue
+                    
+                    # Process this message
+                    await self.process_message(message)
+                    messages_count += 1
+                    latest_date = max(latest_date, message.date)
+                    
+                    # Limit to prevent overwhelming (optional)
+                    if messages_count >= 100:
+                        self._log(f"   ⚠️  Reached limit of 100 messages, stopping catch-up")
+                        break
+                
+                # Update last processed time
+                if messages_count > 0:
+                    self.history_manager.update_last_processed(channel, latest_date)
+                    self._log(f"   ✅ Processed {messages_count} missed messages")
+                    total_caught_up += messages_count
+                else:
+                    self._log(f"   ✅ No new messages (already up to date)")
+                
+            except Exception as e:
+                self._log(f"   ❌ Error catching up: {e}", "ERROR")
+        
+        self._log(f"\n✅ Catch-up complete: {total_caught_up} total messages processed")
+        self._log("=" * 80 + "\n")
+    
+    async def process_message(self, message):
+        """
+        Process a single message (used by both catch-up and real-time).
+        """
+        # Use existing message handler logic
+        await self.on_new_message(events.NewMessage.Event(message))
+    
     async def run(self):
         """
         Run the listener (blocks until interrupted).
@@ -535,6 +625,10 @@ class DiscountChannelListener:
         try:
             self._log("🚀 Starting listener...")
             await self.start()
+            
+            # Catch up on missed messages (if enabled)
+            if self.catchup_mode and self.history_manager:
+                await self.catch_up_messages()
             
             # Run until disconnected
             self._log("✅ Listener is now active. Press Ctrl+C to stop.")
