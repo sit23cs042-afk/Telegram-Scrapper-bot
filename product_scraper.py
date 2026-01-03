@@ -184,170 +184,177 @@ class BaseProductScraper(ABC):
     
     def _extract_images(self, soup: BeautifulSoup, url: str) -> Dict[str, any]:
         """
-        Extract product images using multi-layer strategy.
+        Extract PRIMARY/LARGEST product image only.
+        No variants, no galleries, no thumbnails.
         
         Args:
             soup: BeautifulSoup object of page
             url: Product URL for site-specific extraction
             
         Returns:
-            Dict with 'main_image' (str) and 'additional_images' (list)
+            Dict with 'main_image' (str) only
         """
         images = {
             'main_image': None,
-            'additional_images': []
+            'additional_images': []  # Keeping for compatibility but won't use
         }
         
-        # Layer 1: Try Open Graph and Twitter Card meta tags
-        og_image = soup.find('meta', property='og:image')
-        if og_image and og_image.get('content'):
-            img_url = og_image['content']
-            if self._is_valid_product_image(img_url):
-                images['main_image'] = img_url
-        
-        twitter_image = soup.find('meta', attrs={'name': 'twitter:image'})
-        if not images['main_image'] and twitter_image and twitter_image.get('content'):
-            img_url = twitter_image['content']
-            if self._is_valid_product_image(img_url):
-                images['main_image'] = img_url
-        
-        # Layer 2: Try JSON-LD structured data
-        json_ld = self._extract_json_ld(soup)
-        if json_ld:
-            if isinstance(json_ld, dict) and 'image' in json_ld:
-                img = json_ld['image']
-                if isinstance(img, str) and not images['main_image']:
-                    if self._is_valid_product_image(img):
-                        images['main_image'] = img
-                elif isinstance(img, list) and img:
-                    valid_images = [i for i in img if self._is_valid_product_image(i)]
-                    if valid_images:
-                        if not images['main_image']:
-                            images['main_image'] = valid_images[0]
-                        images['additional_images'].extend(valid_images[1:6])  # Max 5 additional
-        
-        # Layer 3: Site-specific extraction
+        # Determine domain for site-specific extraction
         domain = urlparse(url).netloc.lower()
-        if 'amazon' in domain:
-            self._extract_amazon_images(soup, images)
-        elif 'flipkart' in domain:
-            self._extract_flipkart_images(soup, images)
-        elif 'myntra' in domain:
-            self._extract_myntra_images(soup, images)
-        elif 'ajio' in domain:
-            self._extract_ajio_images(soup, images)
-        elif 'meesho' in domain:
-            self._extract_meesho_images(soup, images)
-        elif 'shopsy' in domain:
-            self._extract_shopsy_images(soup, images)
         
-        # Clean up: Remove duplicates, None values, and invalid images
-        images['additional_images'] = [
-            img for img in images['additional_images'] 
-            if img and img != images['main_image'] and self._is_valid_product_image(img)
-        ]
-        images['additional_images'] = list(dict.fromkeys(images['additional_images']))[:5]  # Unique, max 5
+        # Site-specific extraction (PRIMARY IMAGE ONLY)
+        if 'amazon' in domain:
+            self._extract_amazon_primary_image(soup, images)
+        elif 'flipkart' in domain:
+            self._extract_flipkart_primary_image(soup, images)
+        elif 'myntra' in domain:
+            self._extract_myntra_primary_image(soup, images)
+        elif 'ajio' in domain:
+            self._extract_ajio_primary_image(soup, images)
+        elif 'meesho' in domain:
+            self._extract_meesho_primary_image(soup, images)
+        elif 'shopsy' in domain:
+            self._extract_shopsy_primary_image(soup, images)
+        
+        # Fallback: Try Open Graph meta tag (only if site-specific failed)
+        if not images['main_image']:
+            og_image = soup.find('meta', property='og:image')
+            if og_image and og_image.get('content'):
+                img_url = self._clean_image_url(og_image['content'])
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
+        
+        # Final fallback: Twitter Card
+        if not images['main_image']:
+            twitter_image = soup.find('meta', attrs={'name': 'twitter:image'})
+            if twitter_image and twitter_image.get('content'):
+                img_url = self._clean_image_url(twitter_image['content'])
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
         
         return images
     
-    def _extract_amazon_images(self, soup: BeautifulSoup, images: Dict):
-        """Extract images from Amazon product page."""
-        # Main product image - Try high-res first
-        if not images['main_image']:
-            # Try main product image
-            img_tag = soup.find('img', {'id': 'landingImage'})
-            if not img_tag:
-                img_tag = soup.find('img', {'data-old-hires': True})
-            if img_tag:
-                img_url = img_tag.get('data-old-hires') or img_tag.get('src')
-                if img_url and self._is_valid_product_image(img_url):
+    def _clean_image_url(self, url: str) -> str:
+        """
+        Clean image URL by removing size parameters for highest quality.
+        Example: image.jpg?q=70&h=200&w=200 -> image.jpg
+        """
+        if not url:
+            return url
+        # Strip query parameters that limit size/quality
+        base_url = url.split('?')[0]
+        # Keep the original if stripping breaks it
+        return base_url if base_url else url
+    
+    def _extract_amazon_primary_image(self, soup: BeautifulSoup, images: Dict):
+        """Extract PRIMARY/LARGEST image from Amazon (no variants)."""
+        # Try main high-res image
+        img_tag = soup.find('img', {'id': 'landingImage'})
+        if not img_tag:
+            img_tag = soup.find('img', {'data-old-hires': True})
+        
+        if img_tag:
+            # Prefer data-old-hires (full resolution), fallback to src
+            img_url = img_tag.get('data-old-hires') or img_tag.get('src')
+            if img_url:
+                img_url = self._clean_image_url(img_url)
+                if self._is_valid_product_image(img_url):
                     images['main_image'] = img_url
-        
-        # Image gallery - Get high-res versions
-        gallery = soup.find_all('img', class_=re.compile('imageThumbnail|a-dynamic-image'))
-        for img in gallery[:5]:
-            img_url = img.get('data-old-hires') or img.get('src')
-            if img_url and self._is_valid_product_image(img_url) and img_url not in images['additional_images']:
-                images['additional_images'].append(img_url)
     
-    def _extract_flipkart_images(self, soup: BeautifulSoup, images: Dict):
-        """Extract images from Flipkart product page."""
-        # Main product image - Look in image container
-        if not images['main_image']:
-            # Try main image container first
-            img_container = soup.find('div', class_=re.compile('_2SIJnb|_3kidJX'))
-            if img_container:
-                img_tag = img_container.find('img')
-                if img_tag:
-                    img_url = img_tag.get('src')
-                    if img_url and self._is_valid_product_image(img_url):
-                        images['main_image'] = img_url
-            
-            # Fallback to any large product image
-            if not images['main_image']:
-                img_tag = soup.find('img', class_=re.compile('_2r_T1I|_396cs4'))
-                if img_tag:
-                    img_url = img_tag.get('src')
-                    if img_url and self._is_valid_product_image(img_url):
-                        images['main_image'] = img_url
-        
-        # Image gallery
-        gallery = soup.find_all('img', class_=re.compile('_2r_T1I|q6DClP'))
-        for img in gallery[:5]:
-            img_url = img.get('src')
-            if img_url and self._is_valid_product_image(img_url) and img_url not in images['additional_images']:
-                images['additional_images'].append(img_url)
     
-    def _extract_myntra_images(self, soup: BeautifulSoup, images: Dict):
-        """Extract images from Myntra product page."""
-        # Main product image - Myntra uses specific containers
-        if not images['main_image']:
-            # Try image grid container first (most reliable)
-            img_grid = soup.find('div', class_=re.compile('image-grid-container|imageGrid'))
-            if img_grid:
-                img_tags = img_grid.find_all('img', class_=re.compile('image-grid-image'))
-                for img_tag in img_tags:
-                    img_url = img_tag.get('src')
-                    if img_url and self._is_valid_product_image(img_url) and 'assets.myntassets.com/h_' in img_url:
-                        images['main_image'] = img_url
-                        break
-            
-            # Fallback: Look for any product image
-            if not images['main_image']:
-                for img_tag in soup.find_all('img'):
-                    img_url = img_tag.get('src', '')
-                    # Myntra product images are on assets.myntassets.com with specific patterns
-                    if 'assets.myntassets.com/h_' in img_url and self._is_valid_product_image(img_url):
-                        images['main_image'] = img_url
-                        break
-        
-        # Image gallery - Get all product images from grid
-        gallery = soup.find_all('img', class_=re.compile('image-grid-image'))
-        for img in gallery[:5]:
-            img_url = img.get('src')
-            if img_url and self._is_valid_product_image(img_url) and 'assets.myntassets.com/h_' in img_url:
-                if img_url not in images['additional_images']:
-                    images['additional_images'].append(img_url)
-    
-    def _extract_ajio_images(self, soup: BeautifulSoup, images: Dict):
-        """Extract images from Ajio product page."""
-        # Main product image
-        if not images['main_image']:
-            img_tag = soup.find('img', class_=re.compile('rilrtl-lazy-img'))
+    def _extract_flipkart_primary_image(self, soup: BeautifulSoup, images: Dict):
+        """Extract PRIMARY/LARGEST image from Flipkart (800x800 preferred)."""
+        # Try main image container
+        img_container = soup.find('div', class_=re.compile('_2SIJnb|_3kidJX'))
+        if img_container:
+            img_tag = img_container.find('img')
             if img_tag:
                 img_url = img_tag.get('src')
-                if img_url and self._is_valid_product_image(img_url):
-                    images['main_image'] = img_url
+                if img_url:
+                    # Flipkart URLs often have /200/200/ or /400/400/ - try to get 800x800
+                    img_url = img_url.replace('/200/200/', '/800/800/').replace('/400/400/', '/800/800/')
+                    img_url = self._clean_image_url(img_url)
+                    if self._is_valid_product_image(img_url):
+                        images['main_image'] = img_url
+                        return
         
-        # Image gallery
-        gallery = soup.find_all('img', class_=re.compile('rilrtl-lazy-img'))
-        for img in gallery[:5]:
-            img_url = img.get('src')
-            if img_url and self._is_valid_product_image(img_url) and img_url not in images['additional_images']:
-                images['additional_images'].append(img_url)
+        # Fallback: any large product image
+        img_tag = soup.find('img', class_=re.compile('_2r_T1I|_396cs4'))
+        if img_tag:
+            img_url = img_tag.get('src')
+            if img_url:
+                img_url = img_url.replace('/200/200/', '/800/800/').replace('/400/400/', '/800/800/')
+                img_url = self._clean_image_url(img_url)
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
     
-    def _extract_meesho_images(self, soup: BeautifulSoup, images: Dict):
-        """Extract images from Meesho product page."""
+    def _extract_myntra_primary_image(self, soup: BeautifulSoup, images: Dict):
+        """Extract PRIMARY/LARGEST image from Myntra."""
+        # Try image grid container (most reliable)
+        img_grid = soup.find('div', class_=re.compile('image-grid-container|imageGrid'))
+        if img_grid:
+            img_tag = img_grid.find('img', class_=re.compile('image-grid-image'))
+            if img_tag:
+                img_url = img_tag.get('src')
+                if img_url and 'assets.myntassets.com' in img_url:
+                    img_url = self._clean_image_url(img_url)
+                    if self._is_valid_product_image(img_url):
+                        images['main_image'] = img_url
+                        return
+        
+        # Fallback: Look for first high-quality Myntra image
+        for img_tag in soup.find_all('img', limit=10):
+            img_url = img_tag.get('src', '')
+            if 'assets.myntassets.com/h_' in img_url:
+                img_url = self._clean_image_url(img_url)
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
+                    return
+    
+    def _extract_ajio_primary_image(self, soup: BeautifulSoup, images: Dict):
+        """Extract PRIMARY/LARGEST image from Ajio."""
+        img_tag = soup.find('img', class_=re.compile('rilrtl-lazy-img'))
+        if img_tag:
+            img_url = img_tag.get('src')
+            if img_url:
+                img_url = self._clean_image_url(img_url)
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
+    
+    def _extract_meesho_primary_image(self, soup: BeautifulSoup, images: Dict):
+        """Extract PRIMARY/LARGEST image from Meesho."""
+        # Try product image container
+        img_container = soup.find('div', class_=re.compile('ProductImageCarousel|ImageCarousel'))
+        if img_container:
+            img_tag = img_container.find('img')
+            if img_tag:
+                img_url = img_tag.get('src')
+                if img_url:
+                    img_url = self._clean_image_url(img_url)
+                    if self._is_valid_product_image(img_url):
+                        images['main_image'] = img_url
+                        return
+        
+        # Fallback: first product image
+        img_tag = soup.find('img', class_=re.compile('sc-eDvSVe|ProductImage'))
+        if img_tag:
+            img_url = img_tag.get('src')
+            if img_url:
+                img_url = self._clean_image_url(img_url)
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
+    
+    def _extract_shopsy_primary_image(self, soup: BeautifulSoup, images: Dict):
+        """Extract PRIMARY/LARGEST image from Shopsy."""
+        # Similar to Flipkart (Shopsy is by Flipkart)
+        img_tag = soup.find('img', class_=re.compile('_2r_T1I|_3kidJX'))
+        if img_tag:
+            img_url = img_tag.get('src')
+            if img_url:
+                img_url = img_url.replace('/200/200/', '/800/800/').replace('/400/400/', '/800/800/')
+                img_url = self._clean_image_url(img_url)
+                if self._is_valid_product_image(img_url):
+                    images['main_image'] = img_url
         # Main product image
         if not images['main_image']:
             img_tag = soup.find('img', class_=re.compile('ProductImageCarousel|sc-'))
