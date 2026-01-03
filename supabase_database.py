@@ -171,18 +171,20 @@ def save_to_database(data: Dict) -> bool:
         product_name = product_name.encode('utf-8', 'ignore').decode('utf-8')  # Remove invalid chars
         
         # Check for duplicates by BOTH link AND title similarity (prevent same product with different affiliate links)
-        # First check exact link match
-        existing_link = supabase.table(TABLE_NAME).select('id, title').eq('link', product_link).execute()
+        # Check in both "deals" and "active_deals" tables
         
-        if existing_link.data:
-            print(f"⏭️  Product with same link already exists, skipping...")
+        # First check exact link match in active_deals
+        existing_link_active = supabase.table('active_deals').select('id, title').eq('link', product_link).execute()
+        
+        if existing_link_active.data:
+            print(f"⏭️  Product with same link already exists in active_deals, skipping...")
             return False
         
         # Then check for similar title (fuzzy match to catch same product with different URLs)
         # Extract core product name (remove "Pack of", sizes, etc. for comparison)
         core_title = product_name.split('(')[0].strip().lower()[:50]  # First 50 chars before parenthesis
         
-        existing_titles = supabase.table(TABLE_NAME).select('id, title').execute()
+        existing_titles = supabase.table('active_deals').select('id, title').execute()
         
         for existing in existing_titles.data:
             existing_core = existing['title'].split('(')[0].strip().lower()[:50]
@@ -194,9 +196,14 @@ def save_to_database(data: Dict) -> bool:
                         print(f"⏭️  Similar product already exists: '{existing['title'][:50]}...', skipping...")
                         return False
         
-        # Insert new record only
-        response = supabase.table(TABLE_NAME).insert(record).execute()
+        # Insert new record to both tables
+        # 1. Save to "deals" table (permanent historical record)
+        response_deals = supabase.table('deals').insert(record).execute()
         
+        # 2. Save to "active_deals" table (currently active offers)
+        response_active = supabase.table('active_deals').insert(record).execute()
+        
+        print(f"✅ Saved to both 'deals' and 'active_deals' tables")
         return True
         
     except Exception as e:
