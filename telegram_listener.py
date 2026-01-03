@@ -62,7 +62,8 @@ except ImportError:
 # Telegram API credentials (Get from https://my.telegram.org)
 API_ID = os.getenv('TELEGRAM_API_ID', '31073628')  # Your API_ID
 API_HASH = os.getenv('TELEGRAM_API_HASH', 'aa3d15671e6d93bf06ae350a77aa96bf')  # Your API_HASH
-PHONE_NUMBER = os.getenv('TELEGRAM_PHONE')  # Phone number for authentication
+BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')  # Bot token from @BotFather
+PHONE_NUMBER = os.getenv('TELEGRAM_PHONE')  # Phone number for authentication (alternative to bot token)
 
 # Session file name (stores authentication)
 SESSION_NAME = 'discount_bot_session'
@@ -228,18 +229,27 @@ class DiscountChannelListener:
         self._log("🔌 Connecting to Telegram...")
         
         try:
-            # Start with phone number if provided, otherwise interactive
-            if PHONE_NUMBER:
+            # Start with bot token if provided (best for servers)
+            if BOT_TOKEN:
+                self._log("🤖 Authenticating as bot...")
+                await self.client.start(bot_token=BOT_TOKEN)
+                me = await self.client.get_me()
+                self._log(f"✅ Successfully logged in as bot: @{me.username}")
+            # Otherwise use phone number if provided
+            elif PHONE_NUMBER:
                 self._log(f"📱 Authenticating with phone: {PHONE_NUMBER}")
                 await self.client.start(phone=PHONE_NUMBER)
+                me = await self.client.get_me()
+                if isinstance(me, User):
+                    self._log(f"✅ Successfully logged in as: {me.first_name} (@{me.username or 'no_username'})")
+                    self._log(f"📱 Phone: {me.phone or 'N/A'}")
             else:
+                # Interactive authentication (won't work on servers)
                 await self.client.start()
-            
-            # Get authenticated user info
-            me = await self.client.get_me()
-            if isinstance(me, User):
-                self._log(f"✅ Successfully logged in as: {me.first_name} (@{me.username or 'no_username'})")
-                self._log(f"📱 Phone: {me.phone or 'N/A'}")
+                me = await self.client.get_me()
+                if isinstance(me, User):
+                    self._log(f"✅ Successfully logged in as: {me.first_name} (@{me.username or 'no_username'})")
+                    self._log(f"📱 Phone: {me.phone or 'N/A'}")
             
             # Verify channels
             await self._verify_channels()
