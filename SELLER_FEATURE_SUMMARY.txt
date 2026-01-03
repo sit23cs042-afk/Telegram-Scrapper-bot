@@ -1,0 +1,53 @@
+═══════════════════════════════════════════════════════════════════
+✅ SELLER DETAILS EXTRACTION - FEATURE ADDED
+═══════════════════════════════════════════════════════════════════
+
+🎯 What Was Added:
+
+1. Enhanced Product Scraper
+   • Amazon: Extracts seller name, rating, fulfillment status
+   • Flipkart: Extracts seller, Flipkart Assured detection
+   • Detects platform vs third-party sellers
+
+2. Database Schema
+   • seller_name (TEXT) - Seller name
+   • seller_rating (DECIMAL) - Seller rating if available
+   • is_fulfilled_by_platform (BOOLEAN) - Amazon/Flipkart fulfillment
+   • seller_info (JSONB) - Complete seller metadata
+
+3. Files Created/Modified
+   ✓ product_scraper.py - Enhanced seller extraction
+   ✓ supabase_database.py - Saves seller fields
+   ✓ enhanced_database_schema.sql - Schema updates
+   ✓ add_seller_columns.sql - Migration script
+   ✓ test_seller_extraction.py - Test script
+   ✓ SELLER_DETAILS_README.md - Full documentation
+
+4. Sample Output
+   {
+     "seller_name": "Cloudtail India",
+     "seller_rating": 4.5,
+     "is_fulfilled_by_platform": true,
+     "seller_info": {
+       "platform": "Amazon",
+       "type": "Fulfilled by Amazon",
+       "fulfillment": "Amazon"
+     }
+   }
+
+═══════════════════════════════════════════════════════════════════
+📋 NEXT STEPS:
+═══════════════════════════════════════════════════════════════════
+
+1. Update Database:
+   → Go to Supabase Dashboard → SQL Editor
+   → Run: add_seller_columns.sql
+
+2. Start Monitoring:
+   → python telegram_listener.py
+   → Seller details auto-extracted from all product links
+
+3. View Results:
+   → python view_deals.py
+
+═══════════════════════════════════════════════════════════════════

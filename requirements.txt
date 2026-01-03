@@ -1,0 +1,47 @@
+# Required Python packages for Discount Product Intelligence Agent
+
+# ============================================================================
+# Core Dependencies
+# ============================================================================
+telethon>=1.35.0                 # Telegram client (MTProto)
+python-dotenv>=1.0.0             # Environment variable management
+supabase>=2.3.0                  # Database client
+
+# ============================================================================
+# Web Scraping & Automation
+# ============================================================================
+requests>=2.31.0                 # HTTP requests
+beautifulsoup4>=4.12.0           # HTML parsing
+lxml>=5.0.0                      # XML/HTML processing
+selenium>=4.16.0                 # Browser automation (for dynamic content)
+webdriver-manager>=4.0.0         # Auto WebDriver management
+
+# ============================================================================
+# AI & Machine Learning
+# ============================================================================
+openai>=1.10.0                   # OpenAI API (GPT-4, categorization)
+
+# ============================================================================
+# Image Processing (Optional - for vision fallback)
+# ============================================================================
+pytesseract>=0.3.10              # OCR
+Pillow>=10.0.0                   # Image processing
+
+# ============================================================================
+# Data Processing & Utilities
+# ============================================================================
+python-dateutil>=2.8.2           # Date utilities
+
+# ============================================================================
+# Daily Deals Scheduler Dependencies
+# ============================================================================
+APScheduler>=3.10.4              # Task scheduling
+pytz>=2023.3                     # Timezone support
+urllib3>=2.0.0                   # HTTP client utilities
+
+# ============================================================================
+# Development Tools (Optional)
+# ============================================================================
+pytest>=7.4.0                    # Testing
+black>=23.0.0                    # Code formatting
+flake8>=6.0.0                    # Linting

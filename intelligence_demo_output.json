@@ -1,0 +1,132 @@
+{
+  "deals": [
+    {
+      "title": "Apple iPhone 15 (128 GB) - Black",
+      "price": 119900,
+      "mrp": 69900.0,
+      "discount_percent": 14.3,
+      "url": "https://www.amazon.in/dp/B0CHX1W1XY",
+      "store": "Amazon",
+      "rating": 4.5,
+      "review_count": 5234,
+      "deal_type": "Lightning Deal",
+      "seller_type": "official",
+      "stock_status": "low_stock",
+      "source": "test",
+      "success": true,
+      "offer_price": 54790.0,
+      "availability": "In stock",
+      "seller": "Clicktech Retail Private Ltd",
+      "product_image_url": "https://m.media-amazon.com/images/I/71657TiFeHL._SL1500_.jpg",
+      "additional_images": [
+        "https://images-eu.ssl-images-amazon.com/images/I/71657TiFeHL._AC_UL232_SR232,232_.jpg",
+        "https://images-eu.ssl-images-amazon.com/images/I/51sPyZDiRwL._AC_UL232_SR232,232_.jpg",
+        "https://images-eu.ssl-images-amazon.com/images/I/61muVCIy-uL._AC_UL165_SR165,165_.jpg",
+        "https://images-eu.ssl-images-amazon.com/images/I/618Bb+QzCmL._AC_UL165_SR165,165_.jpg"
+      ],
+      "raw_html": "<html lang=\"en-in\" class=\"a-ws a-js a-audio a-video a-canvas a-svg a-drag-drop a-geolocation a-history a-webworker a-autofocus a-input-placeholder a-textarea-placeholder a-local-storage a-gradients a-transform3d a-touch-scrolling a-text-shadow a-text-stroke a-box-shadow a-border-radius a-border-image a-opacity a-transform a-transition null\" data-19ax5a9jf=\"dingo\" data-aui-build-date=\"3.25.9-2025-12-10\"><!-- sp:feature:head-start --><head><script async=\"\" src=\"https://c.amazon-adsystem.com/bao-csm/forensics/a9-tq-forensics.min.js\" crossorigin=\"anonymous\"></script><script async=\"\" src=\"https://images-na.ssl-images-amazon.com/images/I/21fYSeFelaL.js\" crossorigin=\"anonymous\"></script><script>var aPageStart = (new Date()).getTime();</script><meta charset=\"utf-8\">\n<!-- sp:end-feature:head-start -->\n<!-- sp:feature:csm:head-open-part1 -->\n\n<script type=\"text/javascript\">var ue_t0=ue_t0||+new Date();</script>\n<!-- sp:end-feature:csm:head-open-part1 -->\n<!-- sp:feature:cs-optimization -->\n<meta http-equiv=\"x-dns-prefetch-control\" content=\"on\">\n<link rel=\"dns-prefetch\" href=\"https://images-eu.ssl-images-amazon.com\">\n<link rel=\"dns-prefetch\" href=\"https://m.media-amazon.com\">\n<link rel=\"dns-prefetch\" href=\"https://completion.amazon.com\">\n<!-- sp:end-feature:cs-optimization -->\n<!-- sp:feature:csm:head-open-part2 -->\n<script type=\"text/javascript\">\nwindow.ue_ihb = (window.ue_ihb || window.ueinit || 0) + 1;\nif (window.ue_ihb === 1) {\n\nvar ue_csm = window,\n    ue_hob = +new Date();\n(function(d){var e=d.ue=d.ue||{},f=Date.now||function(){return+new Date};e.d=function(b){return f()-(b?0:d.ue_t0)};e.stub=function(b,a){if(!b[a]){var c=[];b[a]=function(){c.push([c.slice.call(arguments),e.d(),d.ue_id])};b[a].replay=function(b){for(var a;a=c.shift();)b(a[0],a[1],a[2])};b[a].isStub=1}};e.exec=function(b,a){return function(){try{return b.apply(this,arguments)}catch(c){ueLogError(c,{attribution:a||\"undefined\",logLevel:\"WARN\"})}}}})(ue_csm);\n\n\n    var ue_err_chan = 'jserr';\n(function(d,e){function h(f,b){if(!(a.ec>a.mxe)&&f){a.ter.push(f);b=b||{};var c=f.logLevel||b.logLevel;c&&c!==k&&c!==m&&c!==n&&c!==p||a.ec++;c&&c!=k||a.ecf++;b.pageURL=\"\"+(e.location?e.location.href:\"\");b.logLevel=c;b.attribution=f.attribution||b.attribution;a.erl.push({ex:f,info:b})}}function l(a,b,c,e,g){d.ueLogError({m:a,f:b,l:c,c:\"\"+e,err:g,fromOnError:1,args:arguments},g?{attribution:g.attribution,logLevel:g.logLevel}:void 0);return!1}var k=\"FATAL\",m=\"ERROR\",n=\"WARN\",p=\"DOWNGRADED\",a={ec:0,ecf:0,\npec:0,ts:0,erl:[],ter:[],buffer:[],mxe:50,startTimer:function(){a.ts++;setInterval(function(){d.ue&&a.pec<a.ec&&d.uex(\"at\");a.pec=a.ec},1E4)}};l.skipTrace=1;h.skipTrace=1;h.isStub=1;d.ueLogError=h;d.ue_err=a;e.onerror=l})(ue_csm,window);\n\n\nvar ue_id = 'J5JEHMYZRT0WD1NSHQH5',\n    ue_url = '/rd/uedata',\n    ue_drfp = true,\n    ue_navtiming = 1,\n    ue_mid = 'A21TJRUUN4KGV',\n    ue_sid = '524-6109125-1497320',\n    ue_sn = 'www.amazon.in',\n    ue_furl = 'fls-eu.amazon.in',\n    ue_surl = 'https://unagi.amazon.in/1/events/com.amazon.csm.nexusclient.prod',\n    ue_int = 0,\n    ue_fcsn = 1,\n    ue_urt = 3,\n    ue_rpl_ns = 'cel-rpl',\n    ue_ddq = 1,\n    ue_fpf = '//fls-eu.amazon.in/1/batch/1/OP/A21TJRUUN4KGV:524-6109125-1497320:J5JEHMYZRT0WD1NSHQH5$uedata=s:',\n    ue_sbuimp = 1,\n    ue_ibft = 0,\n    ue_fnt = 0,\n    ue_lpsi = 6000,\n    ue_lob = '1',\n    ue_dsbl_cel = 1,\n\n    ue_swi = 1;\nvar ue_viz=function(){(function(b,f,d){function g(){return(!(p in d)||0<d[p])&&(!(q in d)||0<d[q])}function h(c){if(b.ue.viz.length<w&&!r){var a=c.type;c=c.originalEvent;/^focus./.test(a)&&c&&(c.toElement||c.fromElement||c.relatedTarget)||(a=g()?f[s]||(\"blur\"==a||\"focusout\"==a?t:u):t,b.ue.viz.push(a+\":\"+(+new Date-b.ue.t0)),a==u&&(b.ue.isl&&x(\"at\"),r=1))}}for(var r=0,x=b.uex,a,k,l,s,v=[\"\",\"webkit\",\"o\",\"ms\",\"moz\"],e=0,m=1,u=\"visible\",t=\"hidden\",p=\"innerWidth\",q=\"innerHeight\",w=20,n=0;n<v.length&&!e;n++)if(a=\nv[n],k=(a?a+\"H\":\"h\")+\"idden\",e=\"boolean\"==typeof f[k])l=a+\"visibilitychange\",s=(a?a+\"V\":\"v\")+\"isibilityState\";h({});e&&f.addEventListener(l,h,0);m=g()?1:0;d.addEventListener(\"resize\",function(){var a=g()?1:0;m!==a&&(m=a,h({}))},{passive:!0});b.ue&&e&&(b.ue.pageViz={event:l,propHid:k})})(ue_csm,ue_csm.document,ue_csm.window)};window.ue_viz=ue_viz;\n\n(function(d,h,O){function F(a){return a&&a.replace&&a.replace(/^\\s+|\\s+$/g,\"\")}function v(a){return\"undefined\"===typeof a}function D(a,b){for(var c in b)b[w](c)&&(a[c]=b[c])}function K(a){try{var b=O.cookie.match(RegExp(\"(^| )\"+a+\"=([^;]+)\"));if(b)return b[2].trim()}catch(c){}}function P(m,b,c){var p=(B||{}).type;if(\"device\"!==c||2!==p&&1!==p){if(m){d.ue_id=a.id=a.rid=m;if(\"device\"===c||\"pre-fetch\"===c)a.oid=F(m);x&&(x=x.replace(/((.*?:){2})(\\w+)/,function(a,b){return b+m}));G&&(e(\"id\",G,m),G=0)}b&&\n(x&&(x=x.replace(/(.*?:)(\\w|-)+/,function(a,c){return c+b})),d.ue_sid=b);c&&a.tag(\"page-source:\"+c);d.ue_fpf=x}}function Q(){var a={};return function(b){b&&(a[b]=1);b=[];for(var c in a)a[w](c)&&b.push(c);return b}}function C(d,b,c,p){p=p||+new H;var f,",
+      "error": null,
+      "offers": {
+        "coupons": [],
+        "bank_offers": [],
+        "exchange_offers": [],
+        "no_cost_emi": false
+      },
+      "final_effective_price": 119900,
+      "price_insights": {
+        "current_price": 119900,
+        "claimed_mrp": 69900.0,
+        "has_history": true,
+        "is_historical_low": true,
+        "is_fake_discount": false,
+        "price_drop_7d": 0.0,
+        "price_drop_30d": 0.0,
+        "lowest_30d": 119900.0,
+        "highest_30d": 119900.0,
+        "average_30d": 119900.0,
+        "trend_30d": "stable"
+      },
+      "category": "electronics",
+      "method": "keywords",
+      "confidence": "medium",
+      "score": 82.0,
+      "grade": "A-",
+      "recommendation": "✅ Great Deal! Worth Buying",
+      "score_breakdown": {
+        "discount_authenticity": 25.0,
+        "discount_percentage": 6.0,
+        "product_popularity": 13.5,
+        "deal_urgency": 15.0,
+        "price_competitiveness": 12.5,
+        "seller_trust": 10.0
+      },
+      "is_high_value": true,
+      "processed_at": "2025-12-30T10:46:27.922419",
+      "intelligence_version": "2.0"
+    },
+    {
+      "title": null,
+      "price": 99999,
+      "mrp": null,
+      "discount_percent": 20,
+      "url": "https://www.flipkart.com/samsung-s24",
+      "store": "Flipkart",
+      "rating": null,
+      "review_count": 3456,
+      "deal_type": "Festival Sale",
+      "seller_type": "verified",
+      "stock_status": "in_stock",
+      "source": "test",
+      "success": true,
+      "offer_price": null,
+      "availability": "Available",
+      "seller": null,
+      "product_image_url": null,
+      "additional_images": [],
+      "raw_html": "<html><head>\n    <title>Online Shopping India Mobile, Cameras, Lifestyle &amp; more Online @ Flipkart.com</title>\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width,minimum-scale=1,user-scalable=no\">\n    <style type=\"text/css\">\n        html,\n        body {\n            font-family: Roboto, Arial, sans-serif;\n            height: 100%;\n            margin: 0;\n        }\n\n        .button {\n            background-color: #2874f0;\n            color: #fff;\n            padding: 10px 20px;\n            text-align: center;\n            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);\n            cursor: pointer;\n            font-size: 16px;\n            margin-top: 25px;\n            border-radius: 2px;\n            text-decoration: none;\n        }\n    </style>\n</head>\n\n<body>\n    <div style=\"background-color:#2874f0; height:78px; text-align:center;\">\n        <div style=\"width: 100%; margin: 0 auto; padding-top: 2px; text-align:left;\">\n            <div style=\"margin-top: 15px; text-align: center\">\n                <img width=\"149\" src=\"http://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fk-logo_9fddff.png\" style=\"border: none;\">\n            </div>\n        </div>\n    </div>\n    <div style=\"text-align: center; font-size: 14px; padding: 20px;\">\n\n        <div>\n            <img style=\"width: 450px; max-width: 100%;\" src=\"https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/error-500_f9bbb4.png\" id=\"IMG_3\" alt=\"\">\n            <div style=\"font-size: 1.3em; padding-top: 10px; margin-bottom: 35px\">Unfortunately the page you are looking\n                for has been moved or deleted</div>\n            <a href=\"/\" class=\"button\">GO TO HOMEPAGE</a>\n        </div>\n    </div>\n\n\n\n</body></html>",
+      "error": null,
+      "offers": {
+        "coupons": [],
+        "bank_offers": [],
+        "exchange_offers": [],
+        "no_cost_emi": false
+      },
+      "final_effective_price": 99999,
+      "price_insights": {
+        "current_price": 99999,
+        "claimed_mrp": null,
+        "has_history": true,
+        "is_historical_low": true,
+        "is_fake_discount": false,
+        "price_drop_7d": 0.0,
+        "price_drop_30d": 0.0,
+        "lowest_30d": 99999.0,
+        "highest_30d": 99999.0,
+        "average_30d": 99999.0,
+        "trend_30d": "stable"
+      },
+      "score": 70.5,
+      "grade": "B",
+      "recommendation": "👍 Good Deal! Consider It",
+      "score_breakdown": {
+        "discount_authenticity": 25.0,
+        "discount_percentage": 10.0,
+        "product_popularity": 4.0,
+        "deal_urgency": 11.0,
+        "price_competitiveness": 12.5,
+        "seller_trust": 8.0
+      },
+      "processed_at": "2025-12-30T10:46:52.274001",
+      "intelligence_version": "2.0"
+    }
+  ],
+  "count": 2,
+  "generated_at": "2025-12-30T10:46:52.286440",
+  "stats": {
+    "total_deals_processed": 2,
+    "duplicates_removed": 0,
+    "high_value_deals": 1,
+    "deals_saved": 2,
+    "errors": 0
+  }
+}
